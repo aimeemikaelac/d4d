@@ -56,10 +56,6 @@ for i = 1:length(senders)
     end
 end
     
-
-
-
-
 subplot(2,2,2)
 voronoi(voronoiX, voronoiY)
 subplot(2,2,3)
