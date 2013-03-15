@@ -68,7 +68,7 @@ sizex=size(xi);
 sizey=size(yi);
 xi = reshape(xi, 1, sizex(1)*sizex(2));
 yi = reshape(yi, 1, sizey(1)*sizey(2));
-zi = idw(voronoiX, voronoiY, historicData(2,:), xi, yi);
+zi = idw(voronoiX, voronoiY, historicData(:,2), xi, yi);
 sizez=size(zi);
 zi = reshape(zi, sizex(1), sizey(1));
 colormap('hot');
