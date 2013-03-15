@@ -63,12 +63,12 @@ end
 subplot(2,2,2)
 voronoi(voronoiX, voronoiY)
 subplot(2,2,3)
-[ xi yi ] = meshgrid( -4.15:.01:-3.9, 5.2:.01:5.45 );
+[ xi yi ] = meshgrid( -4.15:.001:-3.9, 5.2:.001:5.45 );
 sizex=size(xi);
 sizey=size(yi);
 xi = reshape(xi, 1, sizex(1)*sizex(2));
 yi = reshape(yi, 1, sizey(1)*sizey(2));
-zi = idw(voronoiX, voronoiY, historicData(:,2), xi, yi);
+zi = idw(voronoiX.', voronoiY.', historicData(:,2).', xi, yi);
 sizez=size(zi);
 zi = reshape(zi, sizex(1), sizey(1));
 colormap('hot');
