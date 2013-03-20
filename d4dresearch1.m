@@ -79,4 +79,14 @@ colorbar();
 endCpuTime=cputime;
 elapsedCpuTime=endCpuTime-startCpuTime;
 disp('elapsed cpu time: ')
-elapsedCpuTime
+if elapsedCpuTime < 60
+    elapsedCpuTime
+    disp(' s')
+else
+    a = elapsedCpuTime/60;
+    a
+    disp(' m ')
+    a = mod(elapsedCpuTime, 60);
+    a
+    disp(' s')
+end
