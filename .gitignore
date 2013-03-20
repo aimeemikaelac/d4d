@@ -1,2 +1,4 @@
 *.TSV
 *.tgz
+*.gz
+*.tar
