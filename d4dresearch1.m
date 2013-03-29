@@ -1,34 +1,35 @@
+function [towerIds histogram] = d4dresearch1(startHour, endHour, dataFilePath)
 startCpuTime=cputime;
 abidjanLatitude=5.33632;
 abidjanLongitude=-4.02775;
 locationTolerance = .11;
 locationData=importdata('ANT_POS.TSV');
-startHour=12+8;
-endHour=12+9;
 timeMin=3600*startHour;
 timeMax=3600*endHour;
-if ~exist('POS_SAMPLE_0', 'var')
-    global POS_SAMPLE_0;
+global DATA;
+if ~exist('data', 'var')
 %     POS_SAMPLE_0=importdata('POS_SAMPLE_0.TSV','\t');
-    POS_SAMPLE_0=textscan(fopen('POS_SAMPLE_0.TSV'),'%d %s %s %d');
+    DATA=textscan(fopen(dataFilePath),'%d %s %s %d');
 end
 global senders;
 global receivers;
 global dateString;
 global timeString;
-senders = POS_SAMPLE_0{1,1};
-dateString = POS_SAMPLE_0{1,2};
-timeString = POS_SAMPLE_0{1,3};
-receivers = POS_SAMPLE_0{1,4};
+senders = DATA{1,1};
+dateString = DATA{1,2};
+timeString = DATA{1,3};
+receivers = DATA{1,4};
 
+%%generate scatterplot and  determine which towers are in the range 
+%%of the boundaries defined for Abidjan
 towersLongitudes=locationData(:,2);
 towersLatitudes=locationData(:,3);
 voronoiX = [];
 voronoiY = [];
 towerlist = [];
+handle = figure;
 for i = 1:length(towersLongitudes)
     if(abs(towersLongitudes(i)-abidjanLongitude)<locationTolerance&&abs(towersLatitudes(i)-abidjanLatitude)<locationTolerance)
-        subplot(2,2,1)
         scatter(towersLongitudes(i), towersLatitudes(i))
         voronoiX = [towersLongitudes(i); voronoiX];
         voronoiY = [towersLatitudes(i); voronoiY];
@@ -36,6 +37,13 @@ for i = 1:length(towersLongitudes)
         hold on
     end
 end
+if ~exist('towerGraph.jpg', 'file')
+    print(handle, '-djpeg', 'towerGraph.jpg');
+end
+close all;
+
+%%using the towers calculated peviously, determine the number of calls to
+%%occur at each between the starting and ending hours
 historicData = [towerlist, zeros(length(towerlist))];
 
 for i = 1:length(senders)
@@ -58,10 +66,18 @@ for i = 1:length(senders)
         end
     end
 end
-    
-subplot(2,2,2)
+
+%%generate the vornoi diagram
+handle = figure;
 voronoi(voronoiX, voronoiY)
-subplot(2,2,3)
+if ~exist('towerVoronoi.jpg', 'file')
+    print(handle, '-djpeg', 'towerVoronoi.jpg');
+end
+close all;
+
+%%create the heatmap based on data calculated above for the number of calls
+%%for each cell tower
+handle = figure;
 [ xi yi ] = meshgrid( -4.15:.001:-3.9, 5.2:.001:5.45 );
 sizex=size(xi);
 sizey=size(yi);
@@ -76,17 +92,35 @@ colormap('hot');
 yi = yi(end:-1:1);
 imagesc(xi, yi, zi);
 colorbar();
+dataFileName = dataFilePath(1:length(dataFilePath)-4);
+fileName = strcat('heatmap_From', sprintf('%d', startHour), 'to', sprintf('%d', endHour), 'from_', dataFileName, '.jpg');
+print(handle, '-djpeg', fileName);
+
+
+
+%%calculate elapsed time
 endCpuTime=cputime;
 elapsedCpuTime=endCpuTime-startCpuTime;
 disp('elapsed cpu time: ')
 if elapsedCpuTime < 60
-    elapsedCpuTime
-    disp(' s')
+    str=sprintf(' %0.3f', elapsedCpuTime);
+    disp(strcat(str, ' s'))
 else
-    a = elapsedCpuTime/60;
-    a
-    disp(' m ')
-    a = mod(elapsedCpuTime, 60);
-    a
-    disp(' s')
+    a1 = floor(elapsedCpuTime/60);
+    str1=sprintf('%0.0f',a1);
+    a2 = mod(elapsedCpuTime, 60);
+    str2=sprintf('%0.2f',a2);
+    disp(strcat(str1, ' m ', str2, ' s'))
 end
+
+%output list of towers in region and number of calls per tower in time
+%period
+towerIds = towerlist;
+histogram = historicData;
+if ~exist('abidjanTowers.txt','file')
+    dlmwrite('abidjanTowers.txt', towerIds);
+end
+fileName2 = strcat('callHistoryPerTower_From', sprintf('%d', startHour), 'to', sprintf('%d', endHour), 'from_', dataFileName, '.txt');
+cd results
+dlmwrite(fileName2, [historicData(:,1), historicData(:,2)], '\t');
+cd ..

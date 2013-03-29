@@ -2,3 +2,9 @@
 *.tgz
 *.gz
 *.tar
+*.csv
+*.zip
+*.ods
+results/*
+images/*
+nokia/*.txt
