@@ -74,7 +74,7 @@ for i=1:length(userGpsData)
     end
 end
 listOfTowers=sortrows(listOfTowers);
-dlmwrite('nokiaCellTowerLocations_IdLatLongSignal.csv', listOfTowers);
+dlmwrite('nokiaCellTowerLocations_IdLatLongSignal.csv', listOfTowers, 'precision', 20);
 %apply a cell id to each call record based on the gsm data that occurs
 %near that time
 for i=1:length(userCallData)
@@ -101,7 +101,7 @@ for i=2:length(userCallData)
         userCallData(i,4)=lastCellId;
     end
 end
-dlmwrite('callLogWithCellId_UseridTzTimeCellid.csv', userCallData); 
+dlmwrite('callLogWithCellId_UseridTzTimeCellid.csv', userCallData, 'precision', 20); 
         
         
         

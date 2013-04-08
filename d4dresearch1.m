@@ -7,10 +7,10 @@ locationData=importdata('ANT_POS.TSV');
 timeMin=3600*startHour;
 timeMax=3600*endHour;
 global DATA;
-if ~exist('data', 'var')
+% if ~exist('data', 'var')
 %     POS_SAMPLE_0=importdata('POS_SAMPLE_0.TSV','\t');
     DATA=textscan(fopen(dataFilePath),'%d %s %s %d');
-end
+% end
 global senders;
 global receivers;
 global dateString;
