@@ -22,13 +22,21 @@ userLongestFlights=[];
 currentUser=0;
 %userid, posix date, long, lat
 userHistory=[];
+numDays=0;
+lastDay=0;
 for i=1:length(userGpsData)
     currentRow = userGpsData(i,:);
+    currentDay = extractCurrentDay(userGpsData(i,2));
+    if currentDay~=lastDay
+        numDays=numDays+1;
+        lastDay=currentDay;
+    end
     if currentUser==0
         currentUser=currentRow(1);
     end
     if currentRow(1)~=currentUser
-        userLongestFlights=determineLongestFlight(userHistory, userLongestFlights);
+        i
+        userLongestFlights=determineLongestFlight(userHistory, userLongestFlights, numDays);
         userHistory=[];
         currentUser=currentRow(1);
     end

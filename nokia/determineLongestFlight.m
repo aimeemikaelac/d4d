@@ -1,15 +1,19 @@
-function userLongestFlights = determineLongestFlight(history, flights)
+function userLongestFlights = determineLongestFlight(history, flights, numDays)
 longestFlight = 0;
 currentDay = extractCurrentDay(history(1,2));
+dayStartIndex=1;
+dayEndIndex=length(history);
 % currentTime = history(1,2);
 % wroteData = false;
+userFlights = zeros(numDays, 3);
+dayIndex=1;
 for i=1:length(history)
-    i
+%     i
     firstDay = extractCurrentDay(history(i,2));
     currentTime = history(i,2);
     
     
-    for j=1:length(history)
+    for j=dayStartIndex:dayEndIndex
         secondDay = extractCurrentDay(history(j,2));
         if history(j,2) < currentTime && secondDay ~= firstDay
             continue
@@ -21,19 +25,24 @@ for i=1:length(history)
                 longestFlight = currentFlight;
             end
         else
+            dayEndIndex=j;
             break
         end
         
     end
     
     if currentDay ~= firstDay || i == length(history)
+        dayStartIndex=i;
+        dayEndIndex=length(history);
         currentDay = firstDay;
-        if i>1
-            flights = [flights; history(i-1,1), history(i-1,2), longestFlight];
-        else
-            flights = [flights; history(i,1), history(i,2), longestFlight];
-        end
+%         if i>1
+%             flights = [flights; history(i-1,1), history(i-1,2), longestFlight];
+%         else
+%             flights = [flights; history(i,1), history(i,2), longestFlight];
+%         end
 %         wroteData = true; 
+        userFlights(dayIndex) = [history(i-1,1), history(i-1,2), longestFlight];
+        dayIndex=dayIndex+1;
     end
 end
-userLongestFlights = flights;
+userLongestFlights = [flights; userFlights];
