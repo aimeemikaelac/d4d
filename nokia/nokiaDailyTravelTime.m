@@ -1,48 +1,74 @@
 folders = dir('nokia_data');
-userCellData = [];
+userDailyFlights=[];
+index = 1;
 for folder = folders'
+    index
+    index=index+1;
     name = folder.name;
     if ~isempty(str2num(name)) && ~strcmp(folder.name, '001')
         currentFileName = strcat('nokia_data\',folder.name,'\gps.csv');
-        currentdata = textscan(fopen(currentFileName),'%f %f %f %f %f %f %f %f %f %f %f %f %f %f %f %f', 'headerLines', 1, 'Delimiter', ',');
-        userCellData = [userCellData; currentdata];
+        currentData = textscan(fopen(currentFileName),'%f %f %f %f %f %f %f %f %f %f %f %f %f %f %f %f', 'headerLines', 1, 'Delimiter', '\t', 'EmptyValue',0);
+        userData=[];
+        for i = 1:16
+            userData=[userData,cell2mat(currentData(i))];
+        end
+        currentStart=1;
+        currentEnd=length(userData);
+        lastDay=extractCurrentDay(userData(1,2));
+%         cpuTime
+        for i=1:length(userData)
+            
+            currentDay=extractCurrentDay(userData(i,2));
+            if currentDay ~= lastDay || i==length(userData)
+                if i==length(userData)
+                    currentEnd=i;
+                else
+                    currentEnd = i-1;
+                end
+                if userData(i-1,2) == 1254596003
+                    userData(i-1,2)
+                end
+                currentRange=userData(currentStart:currentEnd,:);
+                latitudes=userData(currentStart:currentEnd,7);
+                longitudes=userData(currentStart:currentEnd,6);
+                currentHull=[];
+                try
+                    currentHull = convhull(latitudes,longitudes);
+                catch err
+                    disp('non-unique data in range')
+                end
+                maxDistance = 0;
+                currentMinLat=0;
+                currentMinLong=0;
+                currentMaxLat=0;
+                currentMaxLon=0;
+                for j=1:length(currentHull)
+                    currentFirstPoint=currentRange(currentHull(j),:);
+                    for k=1:length(currentHull)
+                        currentSecondPoint=currentRange(currentHull(k),:);
+                        currentDistance=haversine([currentFirstPoint(7), currentFirstPoint(6); currentSecondPoint(7), currentSecondPoint(6)]);
+                        if currentDistance>maxDistance
+                            maxDistance=currentDistance;
+                            currentMinLat=currentFirstPoint(7);
+                            currentMinLon=currentFirstPoint(6);
+                            currentMaxLat=currentSecondPoint(7);
+                            currentMaxLon=currentSecondPoint(6);
+                        end
+                    end
+                end
+                userDailyFlights=[userDailyFlights; userData(i-1,1),extractCurrentYear(userData(i-1,2)),extractCurrentMonth(userData(i-1,2)), extractCurrentDay(userData(i-1,2)), userData(i-1,2), maxDistance, currentMinLat, currentMinLon, currentMaxLat, currentMaxLon];
+                currentStart=i; 
+                lastDay=currentDay;
+            end
+        end
+%         cpuTime
     end
 end
-userGpsData=[];
-for i = 1:16
-    currentRow = userCellData(i,:);
-    currentColumn = [];
-    for j=1:length(userCellData)
-        currentColumn=[currentColumn;cell2mat(userCellData(j,i))];
-    end
-    userGpsData=[userGpsData, currentColumn];
-end
-%userid, posix date, distance
-userLongestFlights=[];
-currentUser=0;
-%userid, posix date, long, lat
-userHistory=[];
-numDays=0;
-lastDay=0;
-for i=1:length(userGpsData)
-    currentRow = userGpsData(i,:);
-    currentDay = extractCurrentDay(userGpsData(i,2));
-    if currentDay~=lastDay
-        numDays=numDays+1;
-        lastDay=currentDay;
-    end
-    if currentUser==0
-        currentUser=currentRow(1);
-    end
-    if currentRow(1)~=currentUser
-        i
-        userLongestFlights=determineLongestFlight(userHistory, userLongestFlights, numDays);
-        userHistory=[];
-        currentUser=currentRow(1);
-    end
-    if isempty(userGpsData)
-        userHistory=[currentRow(1), currentRow(1), currentRow(6), currentRow(7)];
-    else
-        userHistory=[userHistory; currentRow(1), currentRow(1), currentRow(6), currentRow(7)];
-    end
-end
+
+
+
+
+% x=firstDayPoints(:,1);
+% y=firstDayPoints(:,2);
+% hull = convhull(x, y);
+% plot(x(hull), y(hull), 'r-', x, y, 'b+')
