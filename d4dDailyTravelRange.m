@@ -5,10 +5,10 @@ index = 1;
 startTime = cputime;
 locationData=importdata('ANT_POS.TSV');
 fileNames = ['POS_SAMPLE_0.TSV'; 'POS_SAMPLE_1.TSV'; 'POS_SAMPLE_2.TSV'; 'POS_SAMPLE_3.TSV'; 'POS_SAMPLE_4.TSV'; 'POS_SAMPLE_5.TSV'; 'POS_SAMPLE_6.TSV'; 'POS_SAMPLE_7.TSV'; 'POS_SAMPLE_8.TSV'; 'POS_SAMPLE_9.TSV'];
-for index = 1:length(fileNames(:,1))
+for fileIndex = 1:length(fileNames(:,1))
 %     index
     
-    file=fileNames(index, :)
+    file=fileNames(fileIndex, :)
     currentData = textscan(fopen(file),'%f %s %f', 'Delimiter', '\t', 'EmptyValue',0);
     userCdrs=[cell2mat(currentData(1)), cell2mat(currentData(3))];
     userTimes=currentData{2};
@@ -23,10 +23,10 @@ for index = 1:length(fileNames(:,1))
     [lastYear lastMonth lastDay]=extractDateFromString(userTimes{1});
 %         cpuTime
     for i=1:length(userCdrs)
-        i
-        if i==173
-            i
-        end
+%         i
+%         if i==173
+%             i
+%         end
         currentRange = [];
         [currentYear currentMonth currentDay]=extractDateFromString(userTimes{i});
         if currentDay ~= lastDay || i==length(userCdrs)
