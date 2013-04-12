@@ -65,7 +65,7 @@ for folder = folders'
     end
 end
 
-
+dlmwrite('nokiaDailyTravel.csv', userDailyFlights)
 
 
 % x=firstDayPoints(:,1);
