@@ -47,6 +47,11 @@ for fileIndex = 1:length(fileNames(:,1))
             if(userCdrs(i,1)==2)
 %                 userCdrs(i,1)
             end
+            if index > length(userDailyFlights)
+                additional = zeros(length(userDailyFlights),11);
+                userDailyFlights=[userDailyFlights; additional];
+                clear additional
+            end
             try
                 currentHull = convhull(latitudes,longitudes);
                 
@@ -77,30 +82,30 @@ for fileIndex = 1:length(fileNames(:,1))
                 end
                 [y m d]=extractDateFromString(userTimes{i-1});
                 if length(latitudes) > 1 && maxFirstTower ~= maxSecondTower && maxFirstTower > 0 && maxSecondTower > 0
-                    if index > length(userDailyFlights)
-                        additional = zeros(length(UserDailyFLights,11));
-                        userDailyFlights=[userDailyFlights; additional];
-                        clear additional
-                    end
+                    
                     userDailyFlights(index,:)=[userCdrs(i-1,1), y, m, d, maxDistance, maxFirstTower, maxSecondTower, currentMinLat, currentMinLong, currentMaxLat, currentMaxLong];
-                    index = index+1;
+                else
+                    userDailyFlights(index,:)=[userCdrs(i-1,1), y, m, d, 0, 0, 0, 0, 0, 0, 0];
                 end
+                index = index+1;
                 currentStart=i; 
                 
 %                 lastMonth=currentMonth;
             catch err
                 uniqueTowers = unique(currentRange(:,2));
+                [y m d]=extractDateFromString(userTimes{i-1});
                 if length(uniqueTowers) == 2 && uniqueTowers(1) > 0 && uniqueTowers(2) > 0
                     newInput = [zeros(length(uniqueTowers),1), uniqueTowers];
                     [latitudes, longitudes] = findCoordinatesForTowers( newInput, locationData);
                     currentDistance = haversine([latitudes(1), longitudes(1); latitudes(2), longitudes(2)]);
-                    [y m d]=extractDateFromString(userTimes{i-1});
                     userDailyFlights(index,:)=[userCdrs(i-1,1), y, m, d, currentDistance, uniqueTowers(1), uniqueTowers(2), latitudes(1), longitudes(1), latitudes(2), longitudes(2)];
-                    index=index+1;
+                else
+                    userDailyFlights(index,:)=[userCdrs(i-1,1), y, m, d, 0, 0, 0, 0, 0, 0, 0];
                 end
 %                 disp('non-unique data in range')
 %                 [y m d]=extractDateFromString(userTimes{i});
 %                 userDailyFlights=[userDailyFlights; userCdrs(i-1,1), y, m, d, 0, 0, 0, 0, 0];
+                index=index+1;
                 currentStart=i;
                 continue
             end

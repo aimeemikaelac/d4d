@@ -30,6 +30,11 @@ for folder = folders'
                 latitudes=userData(currentStart:currentEnd,7);
                 longitudes=userData(currentStart:currentEnd,6);
                 currentHull=[];
+                if index > length(userDailyFlights)
+                    additional = zeros(length(userDailyFlights),11);
+                    userDailyFlights=[userDailyFlights; additional];
+                    clear additional
+                end
                 try
                     currentHull = convhull(latitudes,longitudes);
                     maxDistance = 0;
@@ -51,7 +56,7 @@ for folder = folders'
                             end
                         end
                     end
-                    if currentMinLat > 0 && currentMinLing > 0 && currentMaxLat > 0 && currentMaxLong > 0 && maxDistance >0
+                    if currentMinLat > 0 && currentMinLong > 0 && currentMaxLat > 0 && currentMaxLong > 0 && maxDistance >0
                         userDailyFlights(index,:)=[userData(i-1,1),extractCurrentYear(userData(i-1,2)),extractCurrentMonth(userData(i-1,2)), extractCurrentDay(userData(i-1,2)), userData(i-1,2), maxDistance, currentMinLat, currentMinLon, currentMaxLat, currentMaxLon];
                     else
                         userDailyFlights(index,:)=[userData(i-1,1),extractCurrentYear(userData(i-1,2)),extractCurrentMonth(userData(i-1,2)), extractCurrentDay(userData(i-1,2)), userData(i-1,2), 0, 0, 0, 0, 0];
