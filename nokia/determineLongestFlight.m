@@ -7,6 +7,8 @@ dayEndIndex=length(history);
 % wroteData = false;
 userFlights = zeros(numDays, 3);
 dayIndex=1;
+firstLong = 0;
+firstLat = 0;
 for i=1:length(history)
 %     i
     firstDay = extractCurrentDay(history(i,2));
@@ -14,16 +16,24 @@ for i=1:length(history)
     
     
     for j=dayStartIndex:dayEndIndex
+        currentLat = history(i,4);
+        currentLong = history(i,3);
         secondDay = extractCurrentDay(history(j,2));
         if history(j,2) < currentTime && secondDay ~= firstDay
             continue
         end
         if firstDay == secondDay
 %             wroteDate = false;
-            currentFlight = haversine([history(i,3), history(i,4); history(j,3), history(j,4)]);
-            if currentFlight > longestFlight
-                longestFlight = currentFlight;
-            end
+            current2Lat = history(j,4);
+            current2Long = history(j,3);
+            if firstLat == 0 && firstLong == 0
+                firstLat = currentLat;
+                firstLong = currentLong;
+            else            
+                currentFlight = haversine([history(i,3), history(i,4); history(j,3), history(j,4)]);
+                if currentFlight > longestFlight
+                    longestFlight = currentFlight;
+                end
         else
             dayEndIndex=j;
             break
